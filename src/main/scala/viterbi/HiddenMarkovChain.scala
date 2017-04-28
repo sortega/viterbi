@@ -1,8 +1,10 @@
 package viterbi
 
 case class HiddenMarkovChain[S, O](prevalence: Distro[S],
-                                   hiddenChain: MarkovChain[S],
+                                   hiddenChain: Map[S, Distro[S]],
                                    observationDistros: Map[S, Distro[O]]) {
+
+  def states: Set[S] = hiddenChain.keySet
 
   lazy val observations: Set[O] = observationDistros.values.flatMap(_.prob.keys).toSet
 
@@ -17,7 +19,7 @@ case class HiddenMarkovChain[S, O](prevalence: Distro[S],
 
   def transitionProb(prevState: Option[S]): Distro[S] = prevState match {
     case None => prevalence
-    case Some(state) => hiddenChain.prob(state)
+    case Some(state) => hiddenChain(state)
   }
 
   def viterbiPath(observations: List[O]): List[S] = {
@@ -26,7 +28,7 @@ case class HiddenMarkovChain[S, O](prevalence: Distro[S],
       case Nil => Map(Nil -> 1d)
       case currentObs :: history =>
         val bestPaths = viterbiPaths(history)
-        hiddenChain.states.map { state =>
+        states.map { state =>
           bestPaths
             .map {
               case (path, prob) =>

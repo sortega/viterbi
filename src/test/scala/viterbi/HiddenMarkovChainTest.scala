@@ -20,11 +20,10 @@ class HiddenMarkovChainTest extends FlatSpec with Matchers {
 
     val hidden = HiddenMarkovChain[Health, Symptom](
       prevalence = Distro(Health.Good -> 0.6, Health.Feverish -> 0.4),
-      hiddenChain = MarkovChain(
-        Map(
-          Health.Good -> Distro(Health.Good -> 0.7d, Health.Feverish -> 0.3d),
-          Health.Feverish -> Distro(Health.Good -> 0.4d, Health.Feverish -> 0.6d)
-        )),
+      hiddenChain = Map(
+        Health.Good -> Distro(Health.Good -> 0.7d, Health.Feverish -> 0.3d),
+        Health.Feverish -> Distro(Health.Good -> 0.4d, Health.Feverish -> 0.6d)
+      ),
       observationDistros = Map(
         Health.Good -> Distro(Symptom.Normal -> 0.5, Symptom.Cold -> 0.4, Symptom.Dizzy -> 0.1),
         Health.Feverish -> Distro(Symptom.Normal -> 0.1, Symptom.Cold -> 0.3, Symptom.Dizzy -> 0.6)
@@ -55,14 +54,13 @@ class HiddenMarkovChainTest extends FlatSpec with Matchers {
 
     val hidden = HiddenMarkovChain[Health, Symptom](
       prevalence = Distro(Health.Good -> 0.5, Health.Incubating -> 0.3, Health.Ill -> 0.2),
-      hiddenChain = MarkovChain(
-        Map(
-          Health.Good -> Distro(Health.Good -> 0.9d, Health.Incubating -> 0.1d),
-          Health.Incubating -> Distro(Health.Good -> 0.1d,
-                                      Health.Incubating -> 0.6d,
-                                      Health.Ill -> 0.3d),
-          Health.Ill -> Distro(Health.Good -> 0.2d, Health.Ill -> 0.8d)
-        )),
+      hiddenChain = Map(
+        Health.Good -> Distro(Health.Good -> 0.9d, Health.Incubating -> 0.1d),
+        Health.Incubating -> Distro(Health.Good -> 0.1d,
+                                    Health.Incubating -> 0.6d,
+                                    Health.Ill -> 0.3d),
+        Health.Ill -> Distro(Health.Good -> 0.2d, Health.Ill -> 0.8d)
+      ),
       observationDistros = Map(
         Health.Good -> Distro(Symptom.Normal -> 0.95,
                               Symptom.LowFever -> 0.04,
