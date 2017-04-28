@@ -1,5 +1,7 @@
 package viterbi
 
+import scalaz.Memo
+
 case class HiddenMarkovChain[S, O](prevalence: Distro[S],
                                    hiddenChain: Map[S, Distro[S]],
                                    observationDistros: Map[S, Distro[O]]) {
@@ -23,8 +25,7 @@ case class HiddenMarkovChain[S, O](prevalence: Distro[S],
   }
 
   def viterbiPath(observations: List[O]): List[S] = {
-    // TODO: memoize to get polynomial time
-    def viterbiPaths(observations: List[O]): Map[List[S], Double] = observations match {
+    lazy val viterbiPaths: List[O] => Map[List[S], Double] = Memo.mutableHashMapMemo {
       case Nil => Map(Nil -> 1d)
       case currentObs :: history =>
         val bestPaths = viterbiPaths(history)
