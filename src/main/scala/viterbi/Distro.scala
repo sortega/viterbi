@@ -29,6 +29,9 @@ case class Distro[E](prob: Map[E, Double]) {
     require(survivingEvents.nonEmpty, s"filter $pred discards all options")
     Distro.weighted(survivingEvents)
   }
+
+  def collect[E2](select: PartialFunction[E, E2]): Distro[E2] =
+    filter(select.isDefinedAt).map(select.apply)
 }
 
 object Distro {

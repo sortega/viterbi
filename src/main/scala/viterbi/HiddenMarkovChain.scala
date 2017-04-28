@@ -13,11 +13,9 @@ case class HiddenMarkovChain[S, O](prevalence: Distro[S],
   def transitionProbGivenObservation(prevState: Option[S], obs: O): Distro[S] =
     transitionProb(prevState)
       .flatMap(s => observationDistros(s).map(o => (s, o)))
-      .filter {
-        case (_, `obs`) => true
-        case _ => false
+      .collect {
+        case (event, `obs`) => event
       }
-      .map(_._1) // TODO: filter+map => Distro.collect
 
   def transitionProb(prevState: Option[S]): Distro[S] = prevState match {
     case None => prevalence
