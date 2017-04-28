@@ -11,11 +11,7 @@ case class HiddenMarkovChain[S, O](prevalence: Distro[S],
   lazy val observations: Set[O] = observationDistros.values.flatMap(_.prob.keys).toSet
 
   def transitionProbGivenObservation(prevState: Option[S], obs: O): Distro[S] =
-    transitionProb(prevState)
-      .flatMap(s => observationDistros(s).map(o => (s, o)))
-      .collect {
-        case (event, `obs`) => event
-      }
+    transitionProb(prevState).bayesianUpdate(observationDistros, obs)
 
   def transitionProb(prevState: Option[S]): Distro[S] = prevState match {
     case None => prevalence
@@ -30,9 +26,10 @@ case class HiddenMarkovChain[S, O](prevalence: Distro[S],
         states.map { state =>
           bestPaths
             .map {
-              case (path, prob) =>
-                (state :: path,
-                 prob * transitionProbGivenObservation(path.headOption, currentObs).apply(state))
+              case (path, pathProb) =>
+                val transitionProb =
+                  transitionProbGivenObservation(path.headOption, currentObs).apply(state)
+                (state :: path, pathProb * transitionProb)
             }
             .maxBy(_._2)
         }.toMap

@@ -32,6 +32,17 @@ case class Distro[E](prob: Map[E, Double]) {
 
   def collect[E2](select: PartialFunction[E, E2]): Distro[E2] =
     filter(select.isDefinedAt).map(select.apply)
+
+  /** Consider this distro as an EME and update beliefs given an observation O and conditional
+    * probabilities P(O|E).
+    *
+    * @tparam O  Type of the observations
+    */
+  def bayesianUpdate[O](conditionalDistro: Map[E, Distro[O]], obs: O): Distro[E] =
+    flatMap(e => conditionalDistro(e).map(o => (e, o)))
+      .collect {
+        case (event, `obs`) => event
+      }
 }
 
 object Distro {
